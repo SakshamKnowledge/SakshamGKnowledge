@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saksham Knowledge - Class 1 to 9 Learning Portal</title>
+    <!-- Tailwind CSS for Styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- jsPDF Library for Generating PDFs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        .gradient-bg { background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); }
+        .card-hover:hover { transform: translateY(-3px); transition: all 0.2s ease; }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans min-h-screen flex flex-col justify-between">
+
+    <!-- Header / Navigation -->
+    <header class="gradient-bg text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-white text-blue-900 font-extrabold text-2xl w-10 h-10 rounded-full flex items-center justify-center shadow">
+                    SK
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-wide">Saksham Knowledge</h1>
+                    <p class="text-xs text-blue-200">Classes 1-9 Science & GK Learning Portal</p>
+                </div>
+            </div>
+            <button onclick="openModal()" class="bg-yellow-400 hover:bg-yellow-300 text-blue-950 font-semibold px-4 py-2 rounded-lg text-sm shadow transition">
+                Founder Login
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 py-8 flex-grow w-full">
+        <div class="text-center mb-8">
+            <h2 class="text-3xl font-bold text-slate-800">Welcome Students!</h2>
+            <p class="text-slate-600 mt-2">Apni class chuniye aur Science & Science GK ke questions padhiye ya PDF download kariye.</p>
+        </div>
+
+        <!-- Class Selection Grid -->
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
+            <!-- Classes 1 to 9 Buttons -->
+            <script>
+                for(let i=1; i<=9; i++){
+                    document.write(`
+                        <button onclick="loadClassData(${i})" class="card-hover bg-white p-4 rounded-xl shadow border border-slate-200 hover:border-blue-500 flex flex-col items-center justify-center text-slate-800 hover:text-blue-600 font-bold">
+                            <span class="text-2xl mb-1">📚</span>
+                            <span>Class ${i}</span>
+                        </button>
+                    `);
+                }
+            </script>
+        </div>
+
+        <!-- Content & Question Display Area -->
+        <div id="contentDisplay" class="bg-white p-6 rounded-2xl shadow-md border border-slate-200">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 border-b pb-4">
+                <div>
+                    <h3 id="classTitle" class="text-2xl font-bold text-blue-900">Class 1 Study Material</h3>
+                    <p class="text-sm text-slate-500">Science & Science General Knowledge Questions</p>
+                </div>
+                <button onclick="downloadPDF()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-5 py-2.5 rounded-lg text-sm flex items-center space-x-2 shadow transition">
+                    <span>📥 Download Class PDF</span>
+                </button>
+            </div>
+
+            <!-- Question Cards Container -->
+            <div id="questionsContainer" class="space-y-4">
+                <!-- Questions will be dynamically loaded here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl relative">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+            <h3 class="text-xl font-bold text-slate-800 mb-2">Founder Login</h3>
+            <p class="text-sm text-slate-500 mb-6">Enter admin credentials to access founder control panel.</p>
+            
+            <form onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Username</label>
+                    <input type="text" id="usernameInput" required placeholder="Enter 12-digit ID" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Password</label>
+                    <input type="password" id="passwordInput" required placeholder="Enter password" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                </div>
+                <p id="loginError" class="text-red-500 text-sm hidden">Invalid credentials. Please check details.</p>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2.5 rounded-lg shadow transition">
+                    Login
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-slate-800 text-slate-400 text-center py-4 text-sm mt-8 border-t border-slate-700">
+        <p>© 2026 Saksham Knowledge. Created for Students.</p>
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        let currentClass = 1;
+
+        // Sample Questions Database
+        const sampleData = {
+            1: [
+                { q: "Water boiled directly from lakes is always safe to drink.", type: "True/False", a: "False (Water must be purified or boiled first)." },
+                { q: "Which organ helps us see things around us?", type: "MCQ", a: "Eyes" },
+                { q: "Name a basic need of all living plants.", type: "Short Answer", a: "Sunlight and Water" }
+            ],
+            2: [
+                { q: "Plants produce oxygen during photosynthesis.", type: "True/False", a: "True" },
+                { q: "Which part of the plant absorbs water from the soil?", type: "MCQ", a: "Roots" }
+            ]
+        };
+
+        function loadClassData(classNum) {
+            currentClass = classNum;
+            document.getElementById('classTitle').innerText = `Class ${classNum} Study Material`;
+            
+            const container = document.getElementById('questionsContainer');
+            container.innerHTML = '';
+
+            const questions = sampleData[classNum] || [
+                { q: `Sample Science Question for Class ${classNum}?`, type: "General Science", a: "Standard concept explanation for this grade." },
+                { q: `Sample Science GK Question for Class ${classNum}?`, type: "Science GK", a: "General Knowledge answer related to nature and space." }
+            ];
+
+            questions.forEach((item, idx) => {
+                const card = document.createElement('div');
+                card.className = "p-4 border rounded-xl bg-slate-50 hover:bg-blue-50/30 transition";
+                card.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-semibold px-2.5 py-1 bg-blue-100 text-blue-800 rounded-full">Q${idx+1} • ${item.type}</span>
+                    </div>
+                    <p class="font-medium text-slate-800 text-base mb-2">${item.q}</p>
+                    <p class="text-sm text-slate-600 bg-white p-3 rounded-lg border border-slate-200"><span class="font-semibold text-emerald-600">Answer:</span> ${item.a}</p>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // PDF Generation with hardcoded 'saksham' watermark
+        function downloadPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // Header Title
+            doc.setFontSize(18);
+            doc.setTextColor(30, 58, 138);
+            doc.text(`Saksham Knowledge - Class ${currentClass} Questions`, 14, 20);
+
+            // Questions Content
+            doc.setFontSize(11);
+            doc.setTextColor(50, 50, 50);
+            
+            const questions = sampleData[currentClass] || [
+                { q: `Sample Science Question for Class ${currentClass}?`, a: "Standard concept explanation for this grade." },
+                { q: `Sample Science GK Question for Class ${currentClass}?`, a: "General Knowledge answer related to nature and space." }
+            ];
+
+            let y = 35;
+            questions.forEach((q, idx) => {
+                doc.setFont("helvetica", "bold");
+                doc.text(`Q${idx+1}: ${q.q}`, 14, y);
+                y += 7;
+                doc.setFont("helvetica", "normal");
+                doc.text(`Ans: ${q.a}`, 18, y);
+                y += 12;
+            });
+
+            // Watermark (Hardcoded 'saksham' only)
+            doc.setFontSize(10);
+            doc.setTextColor(150, 150, 150);
+            doc.text("saksham", 14, 285);
+
+            doc.save(`Saksham_Knowledge_Class_${currentClass}.pdf`);
+        }
+
+        // Modal Controls & Login
+        function openModal() { document.getElementById('loginModal').classList.remove('hidden'); }
+        function closeModal() { document.getElementById('loginModal').classList.add('hidden'); }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const u = document.getElementById('usernameInput').value.trim();
+            const p = document.getElementById('passwordInput').value.trim();
+
+            if (u === "343642760015" && p === "Manju@1234") {
+                alert("Founder Login Successful!");
+                closeModal();
+            } else {
+                document.getElementById('loginError').classList.remove('hidden');
+            }
+        }
+
+        // Initial Load
+        loadClassData(1);
+    </script>
+</body>
+</html>
